@@ -49,9 +49,6 @@ function calculatePayments(LumpSumInvestmentMonth: number,
     let LumpSumInvestmentFinancialOffset:number = ((LumpSumInvestmentMonth - FinancialYearEnd + 11) % 12);
     let DebitOrderStartFinancialOffset:number = ((DebitOrderStartMonth - FinancialYearEnd + 11) % 12);
 
-    // note - Spec does not define handling for debit order starting in a month prior to lump sum
-    //  - Assume debit order can start first, rather than assume it will start in the next financial year
-    //  - Uncomment the following if debit must start after lump sum (debit will be ignored this financial year)
     if (DebitOrderStartFinancialOffset < LumpSumInvestmentFinancialOffset) {
        DebitOrderStartFinancialOffset = 12;
     }
@@ -85,20 +82,20 @@ function calculatePayments(LumpSumInvestmentMonth: number,
 }
 
 //#region Tests
-let a:IReturnsObject = calculatePayments(8, 20000, 9, 2500); console.log(a);
-let b:IReturnsObject = calculatePayments(8, 20000, 2, 2500); console.log(b);
-let c:IReturnsObject = calculatePayments(8, 20000, 3, 2500); console.log(c);
-let d:IReturnsObject = calculatePayments(8, 20000, 12, 2500); console.log(d);
-let e:IReturnsObject = calculatePayments(5, 12000, 7, 2500); console.log(e);
+// let a:IReturnsObject = calculatePayments(8, 20000, 9, 2500); console.log(a);
+// let b:IReturnsObject = calculatePayments(8, 20000, 2, 2500); console.log(b);
+// let c:IReturnsObject = calculatePayments(8, 20000, 3, 2500); console.log(c);
+// let d:IReturnsObject = calculatePayments(8, 20000, 12, 2500); console.log(d);
+// let e:IReturnsObject = calculatePayments(5, 12000, 7, 2500); console.log(e);
 
-let f:IReturnsObject = calculatePayments(2, 12000, 7, 2500); console.log(f);
-let g:IReturnsObject = calculatePayments(1, 12000, 7, 2500); console.log(g);
+// let f:IReturnsObject = calculatePayments(2, 12000, 7, 2500); console.log(f);
+// let g:IReturnsObject = calculatePayments(1, 12000, 7, 2500); console.log(g);
 
-let h:IReturnsObject = calculatePayments(1, 12000, 2, 2500); console.log(h);
-let i:IReturnsObject = calculatePayments(1, 12000, 3, 2500); console.log(i);
+// let h:IReturnsObject = calculatePayments(1, 12000, 2, 2500); console.log(h);
+// let i:IReturnsObject = calculatePayments(1, 12000, 3, 2500); console.log(i);
 
-let j:IReturnsObject = calculatePayments(1, 28000, 3, 2500); console.log(j);
-let k:IReturnsObject = calculatePayments(1, 28000, 2, 2500); console.log(k);
+// let j:IReturnsObject = calculatePayments(1, 28000, 3, 2500); console.log(j);
+// let k:IReturnsObject = calculatePayments(1, 28000, 2, 2500); console.log(k);
 //#endregion
 
 function loadMonthsToDropDown(element: HTMLSelectElement): void {
@@ -115,14 +112,31 @@ function loadMonthsToDropDown(element: HTMLSelectElement): void {
 loadMonthsToDropDown(lumpsumInvestmentMonth);
 loadMonthsToDropDown(debitOrderStartMonth);
 
+function removeSpaces(value:string):string {
+    value = value.replace(" ", "");
+    return value;
+}
+
+function isValidValue(value:any):boolean {
+    if(value !== "" && value >= 0) {
+        return true;
+    }
+
+    return false;
+}
+
 calculateButton.addEventListener("click", () => {
     let lsMonth:number = parseInt(lumpsumInvestmentMonth.value, 10);
-    let lsAmount:number = parseFloat(lumpsumInvestmentAmount.value);
+    let lsAmount:number = parseFloat(removeSpaces(lumpsumInvestmentAmount.value));
 
     let dbMonth:number = parseInt(debitOrderStartMonth.value, 10);
-    let dbAmount:number = parseFloat(debitOrderAmount.value);
+    let dbAmount:number = parseFloat(removeSpaces(debitOrderAmount.value));
 
-    let finalResult:IReturnsObject = calculatePayments(lsMonth, lsAmount, dbMonth, dbAmount);
+    if(isValidValue(lsMonth) && isValidValue(lsAmount) && isValidValue(dbMonth) && isValidValue(dbAmount)) {
+        let finalResult:IReturnsObject = calculatePayments(lsMonth, lsAmount, dbMonth, dbAmount);
 
-    response.innerHTML = JSON.stringify(finalResult);
+        response.innerHTML = JSON.stringify(finalResult);
+    } else {
+        response.innerHTML = "Please enter valid values";
+    }
 });
