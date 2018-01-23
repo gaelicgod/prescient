@@ -32,9 +32,6 @@ function calculatePayments(LumpSumInvestmentMonth, LumpSumInvestmentAmount, Debi
     // convert calendar month (one based) to financial month offset (zero based)
     var LumpSumInvestmentFinancialOffset = ((LumpSumInvestmentMonth - FinancialYearEnd + 11) % 12);
     var DebitOrderStartFinancialOffset = ((DebitOrderStartMonth - FinancialYearEnd + 11) % 12);
-    // note - Spec does not define handling for debit order starting in a month prior to lump sum
-    //  - Assume debit order can start first, rather than assume it will start in the next financial year
-    //  - Uncomment the following if debit must start after lump sum (debit will be ignored this financial year)
     if (DebitOrderStartFinancialOffset < LumpSumInvestmentFinancialOffset) {
         DebitOrderStartFinancialOffset = 12;
     }
@@ -59,28 +56,17 @@ function calculatePayments(LumpSumInvestmentMonth, LumpSumInvestmentAmount, Debi
     return returnObject;
 }
 //#region Tests
-var a = calculatePayments(8, 20000, 9, 2500);
-console.log(a);
-var b = calculatePayments(8, 20000, 2, 2500);
-console.log(b);
-var c = calculatePayments(8, 20000, 3, 2500);
-console.log(c);
-var d = calculatePayments(8, 20000, 12, 2500);
-console.log(d);
-var e = calculatePayments(5, 12000, 7, 2500);
-console.log(e);
-var f = calculatePayments(2, 12000, 7, 2500);
-console.log(f);
-var g = calculatePayments(1, 12000, 7, 2500);
-console.log(g);
-var h = calculatePayments(1, 12000, 2, 2500);
-console.log(h);
-var i = calculatePayments(1, 12000, 3, 2500);
-console.log(i);
-var j = calculatePayments(1, 28000, 3, 2500);
-console.log(j);
-var k = calculatePayments(1, 28000, 2, 2500);
-console.log(k);
+// let a:IReturnsObject = calculatePayments(8, 20000, 9, 2500); console.log(a);
+// let b:IReturnsObject = calculatePayments(8, 20000, 2, 2500); console.log(b);
+// let c:IReturnsObject = calculatePayments(8, 20000, 3, 2500); console.log(c);
+// let d:IReturnsObject = calculatePayments(8, 20000, 12, 2500); console.log(d);
+// let e:IReturnsObject = calculatePayments(5, 12000, 7, 2500); console.log(e);
+// let f:IReturnsObject = calculatePayments(2, 12000, 7, 2500); console.log(f);
+// let g:IReturnsObject = calculatePayments(1, 12000, 7, 2500); console.log(g);
+// let h:IReturnsObject = calculatePayments(1, 12000, 2, 2500); console.log(h);
+// let i:IReturnsObject = calculatePayments(1, 12000, 3, 2500); console.log(i);
+// let j:IReturnsObject = calculatePayments(1, 28000, 3, 2500); console.log(j);
+// let k:IReturnsObject = calculatePayments(1, 28000, 2, 2500); console.log(k);
 //#endregion
 function loadMonthsToDropDown(element) {
     var selectOptions = "<option value=\"\">Choose a month</option>";
@@ -92,11 +78,26 @@ function loadMonthsToDropDown(element) {
 }
 loadMonthsToDropDown(lumpsumInvestmentMonth);
 loadMonthsToDropDown(debitOrderStartMonth);
+function removeSpaces(value) {
+    value = value.replace(" ", "");
+    return value;
+}
+function isValidValue(value) {
+    if (value !== "" && value >= 0) {
+        return true;
+    }
+    return false;
+}
 calculateButton.addEventListener("click", function () {
     var lsMonth = parseInt(lumpsumInvestmentMonth.value, 10);
-    var lsAmount = parseFloat(lumpsumInvestmentAmount.value);
+    var lsAmount = parseFloat(removeSpaces(lumpsumInvestmentAmount.value));
     var dbMonth = parseInt(debitOrderStartMonth.value, 10);
-    var dbAmount = parseFloat(debitOrderAmount.value);
-    var finalResult = calculatePayments(lsMonth, lsAmount, dbMonth, dbAmount);
-    response.innerHTML = JSON.stringify(finalResult);
+    var dbAmount = parseFloat(removeSpaces(debitOrderAmount.value));
+    if (isValidValue(lsMonth) && isValidValue(lsAmount) && isValidValue(dbMonth) && isValidValue(dbAmount)) {
+        var finalResult = calculatePayments(lsMonth, lsAmount, dbMonth, dbAmount);
+        response.innerHTML = JSON.stringify(finalResult);
+    }
+    else {
+        response.innerHTML = "Please enter valid values";
+    }
 });
