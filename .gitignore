@@ -1,0 +1,5 @@
+
+.vscode/*
+node_modules/*
+q2/walk_the_line_js/node_modules/*
+q1/fizzbuzz_cs/.vs/*

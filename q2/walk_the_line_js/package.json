@@ -1,0 +1,16 @@
+{
+    "name": "walk_the_line",
+    "version": "1.0.0",
+    "license": "ISC",
+    "description": "prescient assessment question 2",
+    "directories": {
+        "test": "test"
+    },
+    "dependencies": {
+        "jasmine": "2.8.0",
+        "typescript": "2.6.2"
+    },
+    "devDependencies": {
+        "@types/jasmine": "2.8.4"
+    }
+}
